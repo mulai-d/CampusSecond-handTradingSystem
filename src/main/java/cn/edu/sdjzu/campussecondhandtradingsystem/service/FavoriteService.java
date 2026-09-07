@@ -10,5 +10,9 @@ public interface FavoriteService extends IService<Favorite> {
 
     boolean removeFavorite(Long id);
 
+    Favorite getFavorite(Long userId, Long productId);
+
+    boolean removeFavorite(Long userId, Long productId);
+
     PageResult<Favorite> listFavorites(Long userId, long page, long size);
 }

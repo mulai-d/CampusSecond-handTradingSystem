@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import ProductList from '../views/ProductList.vue'
 import ProductDetail from '../views/ProductDetail.vue'
+import Favorites from '../views/Favorites.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,6 +15,11 @@ const router = createRouter({
       path: '/products/:id',
       name: 'product-detail',
       component: ProductDetail
+    },
+    {
+      path: '/favorites',
+      name: 'favorites',
+      component: Favorites
     }
   ]
 })

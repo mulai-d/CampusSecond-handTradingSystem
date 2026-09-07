@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, Eye, Tag } from 'lucide-vue-next'
+import { ArrowLeft, Eye, Heart, Tag } from 'lucide-vue-next'
 import { getProductDetail } from '../api/product'
+import { addFavorite, getFavoriteStatus, removeFavorite } from '../api/favorite'
 
 const route = useRoute()
 const router = useRouter()
@@ -10,6 +11,9 @@ const router = useRouter()
 const product = ref(null)
 const loading = ref(false)
 const error = ref('')
+const favoriteStatus = ref(false)
+const favoriteLoading = ref(false)
+const favoriteError = ref('')
 
 async function loadDetail() {
   loading.value = true
@@ -21,6 +25,34 @@ async function loadDetail() {
     error.value = err.message
   } finally {
     loading.value = false
+  }
+}
+
+async function loadFavoriteStatus() {
+  try {
+    favoriteStatus.value = await getFavoriteStatus(route.params.id)
+  } catch (err) {
+    favoriteStatus.value = false
+  }
+}
+
+async function toggleFavorite() {
+  if (favoriteLoading.value) return
+
+  favoriteLoading.value = true
+  favoriteError.value = ''
+
+  try {
+    if (favoriteStatus.value) {
+      await removeFavorite(route.params.id)
+    } else {
+      await addFavorite(route.params.id)
+    }
+    favoriteStatus.value = !favoriteStatus.value
+  } catch (err) {
+    favoriteError.value = err.message
+  } finally {
+    favoriteLoading.value = false
   }
 }
 
@@ -41,7 +73,10 @@ function formatTime(value) {
   })
 }
 
-onMounted(loadDetail)
+onMounted(() => {
+  loadDetail()
+  loadFavoriteStatus()
+})
 </script>
 
 <template>
@@ -70,6 +105,16 @@ onMounted(loadDetail)
         <div class="detail-meta">
           <span class="category-chip">{{ product.category }}</span>
           <span class="views"><Eye :size="16" /> {{ product.viewCount }} 次浏览</span>
+          <button
+            type="button"
+            class="favorite-button"
+            :class="{ active: favoriteStatus }"
+            :disabled="favoriteLoading"
+            @click="toggleFavorite"
+          >
+            <Heart :size="18" :fill="favoriteStatus ? 'currentColor' : 'none'" />
+            {{ favoriteStatus ? '已收藏' : '收藏' }}
+          </button>
         </div>
 
         <h1>{{ product.title }}</h1>
@@ -86,6 +131,7 @@ onMounted(loadDetail)
           <span><Tag :size="16" /> 发布者 ID：{{ product.userId }}</span>
           <span>发布时间：{{ formatTime(product.createTime) }}</span>
         </div>
+        <p v-if="favoriteError" class="favorite-error">{{ favoriteError }}</p>
       </div>
     </div>
   </section>

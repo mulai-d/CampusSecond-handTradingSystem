@@ -67,6 +67,27 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
     }
 
     @Override
+    public Favorite getFavorite(Long userId, Long productId) {
+        return getOne(Wrappers.<Favorite>lambdaQuery()
+                .eq(Favorite::getUserId, userId)
+                .eq(Favorite::getProductId, productId), false);
+    }
+
+    @Override
+    public boolean removeFavorite(Long userId, Long productId) {
+        Favorite favorite = getFavorite(userId, productId);
+        if (favorite == null) {
+            return false;
+        }
+
+        boolean removed = removeById(favorite.getId());
+        if (removed) {
+            invalidateFavoriteCache(userId);
+        }
+        return removed;
+    }
+
+    @Override
     public PageResult<Favorite> listFavorites(Long userId, long page, long size) {
         long current = Math.max(page, 1);
         long pageSize = Math.min(Math.max(size, 1), 100);
