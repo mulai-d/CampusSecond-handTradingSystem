@@ -4,6 +4,12 @@ spring:
     url: jdbc:mysql://localhost:3306/dasi_kjbc_keshe?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 123456
+  redis:
+    host: localhost
+    port: 6379
+    password: ''
+    database: 0
+    connect-timeout: 3000ms
 
 mybatis-plus:
   configuration:

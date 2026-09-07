@@ -1,3 +1,11 @@
+INSERT INTO `product` (`id`, `user_id`, `title`, `description`, `category`, `price`, `image_url`, `status`, `view_count`, `create_time`, `update_time`) VALUES
+    (1, 101, '充电台灯', '宿舍可用，带三档调光，九成新。', '生活用品', 35.00, 'https://picsum.photos/seed/campus-lamp/600/400', 1, 128, '2026-08-28 09:00:00', '2026-09-05 18:00:00'),
+    (2, 102, '数据结构（C语言版）', '教材正版，有少量划线笔记。', '教材', 18.00, 'https://picsum.photos/seed/campus-book/600/400', 1, 67, '2026-08-29 10:30:00', '2026-09-04 12:00:00'),
+    (3, 103, '蓝牙耳机', '半入耳式蓝牙耳机，续航正常，可试听。', '数码', 89.00, 'https://picsum.photos/seed/campus-earphone/600/400', 1, 245, '2026-08-30 15:20:00', '2026-09-05 20:00:00'),
+    (4, 101, '篮球', '七成新篮球，表面有轻微使用痕迹。', '运动', 45.00, 'https://picsum.photos/seed/campus-basketball/600/400', 1, 90, '2026-08-31 13:10:00', '2026-09-03 17:00:00'),
+    (5, 102, '二手自行车', '校园代步自行车，刹车和轮胎都已检查。', '出行', 150.00, 'https://picsum.photos/seed/campus-bike/600/400', 1, 331, '2026-09-01 08:40:00', '2026-09-06 11:30:00'),
+    (6, 104, '宿舍收纳架', '三层收纳架，适合桌面或床下使用。', '生活用品', 22.00, 'https://picsum.photos/seed/campus-shelf/600/400', 1, 54, '2026-09-02 16:00:00', '2026-09-05 19:00:00');
+
 INSERT INTO `favorite` (`id`, `user_id`, `product_id`, `create_time`) VALUES
     (1, 1, 1, '2026-09-01 09:10:00'),
     (2, 1, 3, '2026-09-01 14:25:00'),
