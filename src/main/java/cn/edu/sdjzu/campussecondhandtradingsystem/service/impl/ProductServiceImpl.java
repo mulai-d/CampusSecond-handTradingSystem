@@ -128,7 +128,10 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Product updated = getById(id);
         long viewCount = updated == null ? 0L : updated.getViewCount();
         redisCacheService.set(PRODUCT_VIEW_KEY + id, viewCount, VIEW_TTL);
+        //删除当前商品详情
         redisCacheService.delete(PRODUCT_DETAIL_KEY + id);
+        //删除
+        redisCacheService.deleteByPattern(PRODUCT_PAGE_KEY + "*");
         return viewCount;
     }
 }

@@ -71,7 +71,6 @@
                 <configuration>
                     <mainClass>cn.edu.sdjzu.campussecondhandtradingsystem.CampusSecondHandTradingSystemApplication
                     </mainClass>
-                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>
