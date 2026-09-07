@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/messages")
 public class MessageController {
 
+    private static final Long CURRENT_USER_ID = 666L;
+
     private final MessageService messageService;
 
     public MessageController(MessageService messageService) {
@@ -25,6 +27,20 @@ public class MessageController {
 
     @PostMapping
     public Result<Message> add(@RequestBody Message message) {
+        Message saved = messageService.addMessage(message);
+        return saved == null ? Result.fail("invalid message") : Result.success(saved);
+    }
+
+    @PostMapping("/product/{productId}")
+    public Result<Message> addCurrentUserMessage(
+            @PathVariable Long productId,
+            @RequestBody Message message) {
+        if (message == null) {
+            return Result.fail("invalid message");
+        }
+
+        message.setProductId(productId);
+        message.setUserId(CURRENT_USER_ID);
         Message saved = messageService.addMessage(message);
         return saved == null ? Result.fail("invalid message") : Result.success(saved);
     }
