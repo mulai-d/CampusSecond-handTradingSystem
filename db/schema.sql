@@ -33,3 +33,12 @@ CREATE TABLE IF NOT EXISTS `message` (
     INDEX `idx_product_id` (`product_id`),
     INDEX `idx_user_id` (`user_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '留言表';
+
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
+    `username` VARCHAR(50) NOT NULL COMMENT '用户名',
+    `password` VARCHAR(100) NOT NULL COMMENT '密码（BCrypt 密文）',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+    `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY `uk_username` (`username`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '用户表';

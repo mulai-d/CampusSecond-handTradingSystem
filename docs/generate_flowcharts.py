@@ -227,8 +227,68 @@ def draw_favorite_message():
     plt.close(fig)
 
 
+def draw_browse_flow():
+    fig, axes = plt.subplots(
+        2,
+        1,
+        figsize=(12, 14),
+        gridspec_kw={"height_ratios": [1.15, 1]},
+    )
+
+    ax1, ax2 = axes
+    prepare(ax1, "商品列表浏览与检索流程")
+
+    draw_box(ax1, 0.30, 0.92, 0.40, 0.07, "打开商品列表页 /")
+    draw_box(ax1, 0.30, 0.81, 0.40, 0.07, "初始化 page=1, size=10")
+    draw_box(ax1, 0.30, 0.70, 0.40, 0.07, "搜索 / 选择分类 / 翻页")
+    draw_box(ax1, 0.30, 0.59, 0.40, 0.07, "GET /products")
+    draw_box(ax1, 0.30, 0.48, 0.40, 0.07, "Service.listProducts")
+    draw_box(ax1, 0.28, 0.33, 0.44, 0.09, "Redis 分页缓存命中?", fc=YELLOW, ec=YELLOW_EDGE)
+    draw_box(ax1, 0.03, 0.17, 0.28, 0.10, "返回缓存分页", fc=GREEN, ec=GREEN_EDGE)
+    draw_box(ax1, 0.68, 0.17, 0.29, 0.10, "查 MySQL\nstatus=1\n写 Redis(10分钟)")
+    draw_box(ax1, 0.28, -0.02, 0.44, 0.08, "返回 PageResult 并渲染商品卡片")
+
+    draw_arrow(ax1, (0.50, 0.92), (0.50, 0.88))
+    draw_arrow(ax1, (0.50, 0.81), (0.50, 0.77))
+    draw_arrow(ax1, (0.50, 0.70), (0.50, 0.66))
+    draw_arrow(ax1, (0.50, 0.59), (0.50, 0.55))
+    draw_arrow(ax1, (0.50, 0.48), (0.50, 0.42))
+    draw_arrow(ax1, (0.28, 0.375), (0.17, 0.27), label="命中")
+    draw_arrow(ax1, (0.72, 0.375), (0.825, 0.27), label="未命中")
+    draw_arrow(ax1, (0.17, 0.17), (0.28, 0.06))
+    draw_arrow(ax1, (0.825, 0.17), (0.72, 0.06))
+
+    prepare(ax2, "商品详情浏览与浏览量统计流程")
+
+    draw_box(ax2, 0.30, 0.90, 0.40, 0.07, "点击商品卡片")
+    draw_box(ax2, 0.30, 0.79, 0.40, 0.07, "跳转 /products/:id")
+    draw_box(ax2, 0.30, 0.68, 0.40, 0.07, "GET /products/:id")
+    draw_box(ax2, 0.30, 0.57, 0.40, 0.07, "Service.viewProduct")
+    draw_box(ax2, 0.28, 0.42, 0.44, 0.09, "Redis 详情缓存命中?", fc=YELLOW, ec=YELLOW_EDGE)
+    draw_box(ax2, 0.03, 0.27, 0.28, 0.10, "读取缓存商品", fc=GREEN, ec=GREEN_EDGE)
+    draw_box(ax2, 0.68, 0.27, 0.29, 0.10, "getById 且 status=1\n写详情缓存(30分钟)")
+    draw_box(ax2, 0.28, 0.12, 0.44, 0.08, "浏览量自增")
+    draw_box(ax2, 0.28, 0.01, 0.44, 0.08, "Redis INCR + SQL view_count+1")
+    draw_box(ax2, 0.28, -0.10, 0.44, 0.08, "失效详情缓存并返回商品")
+
+    draw_arrow(ax2, (0.50, 0.90), (0.50, 0.86))
+    draw_arrow(ax2, (0.50, 0.79), (0.50, 0.75))
+    draw_arrow(ax2, (0.50, 0.68), (0.50, 0.64))
+    draw_arrow(ax2, (0.50, 0.57), (0.50, 0.51))
+    draw_arrow(ax2, (0.28, 0.465), (0.17, 0.37), label="命中")
+    draw_arrow(ax2, (0.72, 0.465), (0.825, 0.37), label="未命中")
+    draw_arrow(ax2, (0.17, 0.27), (0.28, 0.20))
+    draw_arrow(ax2, (0.825, 0.27), (0.72, 0.20))
+    draw_arrow(ax2, (0.50, 0.12), (0.50, 0.09))
+    draw_arrow(ax2, (0.50, 0.01), (0.50, -0.02))
+
+    fig.savefig(OUT_DIR / "browse-flow.png", dpi=180, bbox_inches="tight")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     draw_overview()
     draw_browse_detail()
     draw_favorite_message()
+    draw_browse_flow()
     print("flowcharts generated in", OUT_DIR)

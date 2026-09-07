@@ -20,6 +20,8 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
 
     private static final String FAVORITE_PAGE_KEY = "campus:favorite:user:";
 
+    private static final String PRODUCT_PAGE_KEY = "campus:product:page:";
+
     private static final Duration FAVORITE_PAGE_TTL = Duration.ofMinutes(5);
 
     private final RedisCacheService redisCacheService;
@@ -116,5 +118,6 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
 
     private void invalidateFavoriteCache(Long userId) {
         redisCacheService.deleteByPattern(FAVORITE_PAGE_KEY + userId + ":*");
+        redisCacheService.deleteByPattern(PRODUCT_PAGE_KEY + "*");
     }
 }

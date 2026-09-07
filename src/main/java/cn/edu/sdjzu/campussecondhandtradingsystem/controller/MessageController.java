@@ -2,6 +2,7 @@ package cn.edu.sdjzu.campussecondhandtradingsystem.controller;
 
 import cn.edu.sdjzu.campussecondhandtradingsystem.common.PageResult;
 import cn.edu.sdjzu.campussecondhandtradingsystem.common.Result;
+import cn.edu.sdjzu.campussecondhandtradingsystem.config.UserContext;
 import cn.edu.sdjzu.campussecondhandtradingsystem.entity.Message;
 import cn.edu.sdjzu.campussecondhandtradingsystem.service.MessageService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/messages")
 public class MessageController {
-
-    private static final Long CURRENT_USER_ID = 666L;
 
     private final MessageService messageService;
 
@@ -40,7 +39,7 @@ public class MessageController {
         }
 
         message.setProductId(productId);
-        message.setUserId(CURRENT_USER_ID);
+        message.setUserId(UserContext.getUserId());
         Message saved = messageService.addMessage(message);
         return saved == null ? Result.fail("invalid message") : Result.success(saved);
     }

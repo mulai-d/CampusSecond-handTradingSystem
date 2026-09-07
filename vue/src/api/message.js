@@ -1,7 +1,15 @@
+import { getToken } from '../utils/auth'
+
 const API_BASE = '/api'
 
-async function request(path, options) {
-  const response = await fetch(`${API_BASE}${path}`, options)
+async function request(path, options = {}) {
+  const headers = { ...(options.headers || {}) }
+  const token = getToken()
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, { ...options, headers })
   if (!response.ok) {
     throw new Error('网络请求失败')
   }

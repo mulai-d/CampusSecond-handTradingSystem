@@ -2,6 +2,7 @@ package cn.edu.sdjzu.campussecondhandtradingsystem.controller;
 
 import cn.edu.sdjzu.campussecondhandtradingsystem.common.PageResult;
 import cn.edu.sdjzu.campussecondhandtradingsystem.common.Result;
+import cn.edu.sdjzu.campussecondhandtradingsystem.config.UserContext;
 import cn.edu.sdjzu.campussecondhandtradingsystem.entity.Favorite;
 import cn.edu.sdjzu.campussecondhandtradingsystem.entity.Product;
 import cn.edu.sdjzu.campussecondhandtradingsystem.service.FavoriteService;
@@ -23,8 +24,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/favorites")
 public class FavoriteController {
 
-    private static final Long CURRENT_USER_ID = 666L;
-
     private final FavoriteService favoriteService;
 
     private final ProductService productService;
@@ -45,7 +44,7 @@ public class FavoriteController {
 
     @PostMapping("/product/{productId}")
     public Result<Boolean> addCurrentUserFavorite(@PathVariable Long productId) {
-        return Result.success(favoriteService.addFavorite(CURRENT_USER_ID, productId));
+        return Result.success(favoriteService.addFavorite(UserContext.getUserId(), productId));
     }
 
     @DeleteMapping("/{id}")
@@ -55,19 +54,19 @@ public class FavoriteController {
 
     @DeleteMapping("/product/{productId}")
     public Result<Boolean> removeCurrentUserFavorite(@PathVariable Long productId) {
-        return Result.success(favoriteService.removeFavorite(CURRENT_USER_ID, productId));
+        return Result.success(favoriteService.removeFavorite(UserContext.getUserId(), productId));
     }
 
     @GetMapping("/status/{productId}")
     public Result<Boolean> currentUserFavoriteStatus(@PathVariable Long productId) {
-        return Result.success(favoriteService.getFavorite(CURRENT_USER_ID, productId) != null);
+        return Result.success(favoriteService.getFavorite(UserContext.getUserId(), productId) != null);
     }
 
     @GetMapping("/mine")
     public Result<PageResult<FavoriteItemVO>> listCurrentUserFavorites(
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "10") long size) {
-        PageResult<Favorite> favoritePage = favoriteService.listFavorites(CURRENT_USER_ID, page, size);
+        PageResult<Favorite> favoritePage = favoriteService.listFavorites(UserContext.getUserId(), page, size);
         List<FavoriteItemVO> records = favoritePage.getRecords().stream()
                 .map(this::toFavoriteItem)
                 .collect(Collectors.toList());

@@ -13,6 +13,11 @@ spring:
     database: 0
     connect-timeout: 3000ms
 
+app:
+  jwt:
+    secret: campus-second-hand-jwt-secret-key-please-change-this-32bytes
+    expiration: 86400000
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
