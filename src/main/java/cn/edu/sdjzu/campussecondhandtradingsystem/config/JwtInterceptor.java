@@ -1,6 +1,9 @@
 package cn.edu.sdjzu.campussecondhandtradingsystem.config;
 
 import cn.edu.sdjzu.campussecondhandtradingsystem.common.Result;
+import cn.edu.sdjzu.campussecondhandtradingsystem.entity.User;
+import cn.edu.sdjzu.campussecondhandtradingsystem.mapper.UserMapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -17,9 +20,12 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     private final ObjectMapper objectMapper;
 
-    public JwtInterceptor(JwtUtil jwtUtil, ObjectMapper objectMapper) {
+    private final UserMapper userMapper;
+
+    public JwtInterceptor(JwtUtil jwtUtil, ObjectMapper objectMapper, UserMapper userMapper) {
         this.jwtUtil = jwtUtil;
         this.objectMapper = objectMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -32,6 +38,12 @@ public class JwtInterceptor implements HandlerInterceptor {
         // 商品留言列表为公开接口，放行 GET 请求
         if ("GET".equalsIgnoreCase(request.getMethod())
                 && request.getRequestURI().startsWith("/messages/product/")) {
+            return true;
+        }
+
+        // 商品浏览相关接口（列表、详情、浏览量）为公开接口，放行 GET 请求
+        if ("GET".equalsIgnoreCase(request.getMethod())
+                && request.getRequestURI().startsWith("/products")) {
             return true;
         }
 
@@ -50,7 +62,10 @@ public class JwtInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        UserContext.set(userId);
+        // 查询用户角色并存入上下文，便于后续权限校验
+        User user = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getId, userId));
+        String role = user != null ? user.getRole() : "user";
+        UserContext.set(userId, role);
         return true;
     }
 

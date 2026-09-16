@@ -24,6 +24,8 @@ public class Product implements Serializable {
 
     private String category;
 
+    private Long categoryId;
+
     private BigDecimal price;
 
     private String imageUrl;
@@ -74,6 +76,14 @@ public class Product implements Serializable {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 
     public BigDecimal getPrice() {

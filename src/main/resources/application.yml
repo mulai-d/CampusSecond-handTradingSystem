@@ -12,11 +12,18 @@ spring:
     password: ''
     database: 0
     connect-timeout: 3000ms
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
 
 app:
   jwt:
     secret: campus-second-hand-jwt-secret-key-please-change-this-32bytes
     expiration: 86400000
+  upload:
+    path: ./uploads
+    url-prefix: /uploads
 
 mybatis-plus:
   configuration:

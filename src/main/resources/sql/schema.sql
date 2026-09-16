@@ -1,9 +1,18 @@
+CREATE TABLE IF NOT EXISTS `category` (
+    `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '分类ID',
+    `name` VARCHAR(50) NOT NULL COMMENT '分类名称',
+    `sort` INT NOT NULL DEFAULT 0 COMMENT '排序（越小越靠前）',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    UNIQUE KEY `uk_name` (`name`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '商品分类表';
+
 CREATE TABLE IF NOT EXISTS `product` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '商品ID',
     `user_id` BIGINT NOT NULL COMMENT '发布用户ID',
     `title` VARCHAR(100) NOT NULL COMMENT '商品标题',
     `description` TEXT COMMENT '商品描述',
-    `category` VARCHAR(50) DEFAULT NULL COMMENT '商品分类',
+    `category` VARCHAR(50) DEFAULT NULL COMMENT '商品分类名称（冗余字段，与 category.name 保持一致）',
+    `category_id` BIGINT DEFAULT NULL COMMENT '分类ID（外键关联 category.id）',
     `price` DECIMAL(10, 2) NOT NULL DEFAULT 0.00 COMMENT '商品价格',
     `image_url` VARCHAR(500) DEFAULT NULL COMMENT '商品图片地址',
     `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态：1在售，0下架',
@@ -11,6 +20,7 @@ CREATE TABLE IF NOT EXISTS `product` (
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_category_id` (`category_id`),
     INDEX `idx_status_create_time` (`status`, `create_time`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '商品表';
 
@@ -38,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `id` BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
     `username` VARCHAR(50) NOT NULL COMMENT '用户名',
     `password` VARCHAR(100) NOT NULL COMMENT '密码（BCrypt 密文）',
+    `role` VARCHAR(20) NOT NULL DEFAULT 'user' COMMENT '角色：user普通用户，admin管理员',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     UNIQUE KEY `uk_username` (`username`)

@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { LogIn, Store } from 'lucide-vue-next'
 import { login } from '../api/auth'
-import { setToken, setUsername } from '../utils/auth'
+import { setToken, setUserId, setUsername, setRole } from '../utils/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -31,6 +31,8 @@ async function submit() {
     const data = await login(name, pwd)
     setToken(data.token)
     setUsername(data.username)
+    setUserId(data.userId)
+    setRole(data.role)
     router.push(route.query.redirect || '/')
   } catch (err) {
     error.value = err.message

@@ -9,12 +9,14 @@ import {
   Eye,
   Heart,
   MessageCircle,
+  Pencil,
   Send,
   Tag
 } from 'lucide-vue-next'
 import { getProductDetail } from '../api/product'
 import { addFavorite, getFavoriteStatus, removeFavorite } from '../api/favorite'
 import { addProductMessage, getProductMessages } from '../api/message'
+import { getUserId, isAdmin } from '../utils/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,6 +41,14 @@ const messageTotal = ref(0)
 const messageComposer = ref(null)
 
 const messageTotalPages = computed(() => Math.max(1, Math.ceil(messageTotal.value / messageSize.value)))
+
+const isOwner = computed(() => {
+  const uid = getUserId()
+  return uid !== null && product.value && product.value.userId === uid
+})
+
+// 仅管理员可编辑商品
+const canEdit = computed(() => isAdmin())
 
 async function loadDetail() {
   loading.value = true
@@ -202,6 +212,15 @@ onMounted(() => {
             >
               <Heart :size="18" :fill="favoriteStatus ? 'currentColor' : 'none'" />
               {{ favoriteStatus ? '已收藏' : '收藏' }}
+            </button>
+            <button
+              v-if="canEdit"
+              type="button"
+              class="edit-button"
+              @click="router.push(`/products/${product.id}/edit`)"
+            >
+              <Pencil :size="18" />
+              编辑
             </button>
           </div>
 

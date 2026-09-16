@@ -126,6 +126,31 @@ button:disabled {
   color: #6b7280;
 }
 
+.heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.publish-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  color: #ffffff;
+  background: #0f766e;
+  border: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.publish-btn:hover {
+  background: #115e59;
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -417,6 +442,23 @@ button:disabled {
   color: #ffffff;
   background: #ea580c;
   border-color: #ea580c;
+}
+
+.edit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  color: #0f766e;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+}
+
+.edit-button:hover {
+  background: #ccfbf1;
 }
 
 .favorite-error {

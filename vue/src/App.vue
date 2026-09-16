@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Heart, LogIn, LogOut, Store, UserPlus } from 'lucide-vue-next'
+import { Heart, LayoutDashboard, LogIn, LogOut, Store, UserPlus } from 'lucide-vue-next'
 import { clearAuth, getUsername, isLoggedIn } from './utils/auth'
 
 const route = useRoute()
@@ -37,6 +37,10 @@ function logout() {
         <RouterLink class="nav-link" to="/favorites">
           <Heart :size="18" />
           <span>我的收藏</span>
+        </RouterLink>
+        <RouterLink class="nav-link" to="/distribution">
+          <LayoutDashboard :size="18" />
+          <span>商品分布</span>
         </RouterLink>
 
         <template v-if="loggedIn">

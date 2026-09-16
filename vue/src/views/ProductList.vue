@@ -1,8 +1,9 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ChevronLeft, ChevronRight, Eye, Search } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Eye, Plus, Search } from 'lucide-vue-next'
 import { getProductList } from '../api/product'
+import { isAdmin } from '../utils/auth'
 
 const router = useRouter()
 
@@ -62,6 +63,10 @@ function openProduct(id) {
   router.push(`/products/${id}`)
 }
 
+function goPublish() {
+  router.push('/products/publish')
+}
+
 function formatPrice(value) {
   return Number(value || 0).toFixed(2)
 }
@@ -76,7 +81,18 @@ onMounted(loadProducts)
         <p class="eyebrow">Campus Market</p>
         <h1>在售好物</h1>
       </div>
-      <p class="count">{{ total }} 件商品</p>
+      <div class="heading-actions">
+        <p class="count">{{ total }} 件商品</p>
+        <button
+          v-if="isAdmin()"
+          type="button"
+          class="publish-btn"
+          @click="goPublish"
+        >
+          <Plus :size="16" />
+          <span>发布商品</span>
+        </button>
+      </div>
     </div>
 
     <div class="toolbar">

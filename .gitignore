@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Uploads ###
+uploads/
+
+### Vue ###
+vue/node_modules/
+vue/dist/
+vue/.vite/
+
+### Logs ###
+*.log

@@ -1,8 +1,11 @@
 package cn.edu.sdjzu.campussecondhandtradingsystem.service.impl;
 
 import cn.edu.sdjzu.campussecondhandtradingsystem.common.PageResult;
+import cn.edu.sdjzu.campussecondhandtradingsystem.config.UserContext;
+import cn.edu.sdjzu.campussecondhandtradingsystem.entity.Category;
 import cn.edu.sdjzu.campussecondhandtradingsystem.entity.Product;
 import cn.edu.sdjzu.campussecondhandtradingsystem.mapper.ProductMapper;
+import cn.edu.sdjzu.campussecondhandtradingsystem.service.CategoryService;
 import cn.edu.sdjzu.campussecondhandtradingsystem.service.ProductService;
 import cn.edu.sdjzu.campussecondhandtradingsystem.service.RedisCacheService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,8 +37,11 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     private final RedisCacheService redisCacheService;
 
-    public ProductServiceImpl(RedisCacheService redisCacheService) {
+    private final CategoryService categoryService;
+
+    public ProductServiceImpl(RedisCacheService redisCacheService, CategoryService categoryService) {
         this.redisCacheService = redisCacheService;
+        this.categoryService = categoryService;
     }
 
     @Override
@@ -77,6 +84,13 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         Optional<Product> cached = redisCacheService.get(cacheKey, new TypeReference<Product>() {
         });
         if (cached.isPresent()) {
+            // 缓存命中时校验数据库中商品是否仍然存在，避免缓存与数据库不一致
+            Product dbProduct = getById(id);
+            if (dbProduct == null || !Objects.equals(dbProduct.getStatus(), 1)) {
+                redisCacheService.delete(cacheKey);
+                redisCacheService.delete(PRODUCT_VIEW_KEY + id);
+                return null;
+            }
             return cached.get();
         }
 
@@ -133,5 +147,81 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         //删除
         redisCacheService.deleteByPattern(PRODUCT_PAGE_KEY + "*");
         return viewCount;
+    }
+
+    @Override
+    public Product updateProduct(Long id, Product product) {
+        Product existing = getById(id);
+        if (existing == null) {
+            // 商品不存在，清除可能残留的缓存，避免详情页继续展示已删除商品
+            redisCacheService.delete(PRODUCT_DETAIL_KEY + id);
+            redisCacheService.delete(PRODUCT_VIEW_KEY + id);
+            return null;
+        }
+
+        Long currentUserId = UserContext.getUserId();
+        boolean isAdmin = UserContext.isAdmin();
+        // 仅管理员可修改商品
+        if (!isAdmin) {
+            throw new IllegalStateException("仅管理员可修改商品");
+        }
+
+        existing.setTitle(product.getTitle());
+        existing.setDescription(product.getDescription());
+        existing.setPrice(product.getPrice());
+        existing.setImageUrl(product.getImageUrl());
+        if (product.getStatus() != null) {
+            existing.setStatus(product.getStatus());
+        }
+
+        Long newCategoryId = product.getCategoryId();
+        if (newCategoryId != null && !Objects.equals(newCategoryId, existing.getCategoryId())) {
+            Category category = categoryService.getById(newCategoryId);
+            if (category != null) {
+                existing.setCategoryId(newCategoryId);
+                existing.setCategory(category.getName());
+            }
+        }
+
+        updateById(existing);
+
+        redisCacheService.delete(PRODUCT_DETAIL_KEY + id);
+        redisCacheService.deleteByPattern(PRODUCT_PAGE_KEY + "*");
+        return existing;
+    }
+
+    @Override
+    public Product createProduct(Product product) {
+        // 仅管理员可发布商品
+        if (!UserContext.isAdmin()) {
+            throw new IllegalStateException("仅管理员可发布商品");
+        }
+
+        Long currentUserId = UserContext.getUserId();
+        product.setUserId(currentUserId);
+
+        // 处理分类冗余字段
+        if (product.getCategoryId() != null) {
+            Category category = categoryService.getById(product.getCategoryId());
+            if (category != null) {
+                product.setCategory(category.getName());
+            }
+        }
+
+        // 设置默认值
+        if (product.getStatus() == null) {
+            product.setStatus(1);
+        }
+        if (product.getViewCount() == null) {
+            product.setViewCount(0L);
+        }
+        LocalDateTime now = LocalDateTime.now();
+        product.setCreateTime(now);
+        product.setUpdateTime(now);
+
+        save(product);
+
+        redisCacheService.deleteByPattern(PRODUCT_PAGE_KEY + "*");
+        return product;
     }
 }

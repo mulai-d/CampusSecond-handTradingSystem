@@ -13,4 +13,8 @@ public interface ProductService extends IService<Product> {
     Product viewProduct(Long id);
 
     Long getViewCount(Long id);
+
+    Product updateProduct(Long id, Product product);
+
+    Product createProduct(Product product);
 }
