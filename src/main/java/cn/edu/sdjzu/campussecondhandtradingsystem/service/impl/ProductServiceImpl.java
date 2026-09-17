@@ -192,11 +192,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 
     @Override
     public Product createProduct(Product product) {
-        // 仅管理员可发布商品
-        if (!UserContext.isAdmin()) {
-            throw new IllegalStateException("仅管理员可发布商品");
-        }
-
         Long currentUserId = UserContext.getUserId();
         product.setUserId(currentUserId);
 

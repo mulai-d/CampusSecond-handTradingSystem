@@ -5,7 +5,7 @@ import { ArrowLeft, Save, Upload } from 'lucide-vue-next'
 import { createProduct } from '../api/product'
 import { getCategoryList } from '../api/category'
 import { uploadFile } from '../api/upload'
-import { isLoggedIn, isAdmin } from '../utils/auth'
+import { isLoggedIn } from '../utils/auth'
 
 const router = useRouter()
 
@@ -30,10 +30,6 @@ const uploadError = ref('')
 async function loadCategories() {
   if (!isLoggedIn()) {
     router.push('/login?redirect=/products/publish')
-    return
-  }
-  if (!isAdmin()) {
-    router.push('/products')
     return
   }
 

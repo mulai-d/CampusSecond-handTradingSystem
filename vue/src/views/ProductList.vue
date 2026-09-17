@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronLeft, ChevronRight, Eye, Plus, Search } from 'lucide-vue-next'
 import { getProductList } from '../api/product'
-import { isAdmin } from '../utils/auth'
+import { isLoggedIn } from '../utils/auth'
 
 const router = useRouter()
 
@@ -84,7 +84,7 @@ onMounted(loadProducts)
       <div class="heading-actions">
         <p class="count">{{ total }} 件商品</p>
         <button
-          v-if="isAdmin()"
+          v-if="isLoggedIn()"
           type="button"
           class="publish-btn"
           @click="goPublish"
