@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronLeft, ChevronRight, Eye, Plus, Search } from 'lucide-vue-next'
+import { getCategoryList } from '../api/category'
 import { getProductList } from '../api/product'
 import { isLoggedIn } from '../utils/auth'
 
@@ -16,9 +17,18 @@ const page = ref(1)
 const size = ref(10)
 const total = ref(0)
 
-const categories = ['生活用品', '教材', '数码', '运动', '出行']
+const categories = ref([])
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / size.value)))
+
+async function loadCategories() {
+  try {
+    const data = await getCategoryList()
+    categories.value = (data || []).map((item) => item.name).filter(Boolean)
+  } catch {
+    categories.value = []
+  }
+}
 
 async function loadProducts() {
   loading.value = true
@@ -71,7 +81,10 @@ function formatPrice(value) {
   return Number(value || 0).toFixed(2)
 }
 
-onMounted(loadProducts)
+onMounted(() => {
+  loadCategories()
+  loadProducts()
+})
 </script>
 
 <template>
