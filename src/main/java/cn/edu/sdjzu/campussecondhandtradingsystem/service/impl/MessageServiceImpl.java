@@ -73,7 +73,8 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         Page<Message> messagePage = page(new Page<>(current, pageSize),
                 Wrappers.<Message>lambdaQuery()
                         .eq(Message::getProductId, productId)
-                        .orderByAsc(Message::getCreateTime));
+                        .orderByAsc(Message::getCreateTime)
+                        .orderByAsc(Message::getId));
 
         PageResult<Message> result = PageResult.of(
                 messagePage.getCurrent(),

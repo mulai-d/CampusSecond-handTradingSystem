@@ -35,12 +35,61 @@ const messageError = ref('')
 const messageContent = ref('')
 const messageSubmitting = ref(false)
 const replyParentId = ref(0)
+const replyTargetName = ref('')
 const messagePage = ref(1)
 const messageSize = ref(20)
 const messageTotal = ref(0)
 const messageComposer = ref(null)
 
 const messageTotalPages = computed(() => Math.max(1, Math.ceil(messageTotal.value / messageSize.value)))
+
+const messageThreads = computed(() => {
+  const messageById = new Map(messages.value.map((message) => [message.id, message]))
+  const rootIdCache = new Map()
+
+  function findRootId(message) {
+    if (rootIdCache.has(message.id)) {
+      return rootIdCache.get(message.id)
+    }
+
+    const visited = new Set()
+    let current = message
+
+    while (current) {
+      const parentId = Number(current.parentId || 0)
+      if (parentId === 0 || !messageById.has(parentId)) {
+        rootIdCache.set(message.id, current.id)
+        return current.id
+      }
+      if (visited.has(current.id)) {
+        rootIdCache.set(message.id, message.id)
+        return message.id
+      }
+      visited.add(current.id)
+      current = messageById.get(parentId)
+    }
+
+    rootIdCache.set(message.id, message.id)
+    return message.id
+  }
+
+  const roots = []
+  const repliesByRoot = new Map()
+
+  messages.value.forEach((message) => {
+    const rootId = findRootId(message)
+    if (rootId === message.id) {
+      roots.push({ ...message, depth: 0 })
+      return
+    }
+
+    const replies = repliesByRoot.get(rootId) || []
+    replies.push({ ...message, depth: 1 })
+    repliesByRoot.set(rootId, replies)
+  })
+
+  return roots.flatMap((root) => [root, ...(repliesByRoot.get(root.id) || [])])
+})
 
 const isOwner = computed(() => {
   const uid = getUserId()
@@ -118,6 +167,7 @@ async function submitMessage() {
     await addProductMessage(route.params.id, content, replyParentId.value)
     messageContent.value = ''
     replyParentId.value = 0
+    replyTargetName.value = ''
     messagePage.value = 1
     await loadMessages()
   } catch (err) {
@@ -129,11 +179,13 @@ async function submitMessage() {
 
 function replyTo(message) {
   replyParentId.value = message.id
+  replyTargetName.value = message.username || `用户 ${message.userId}`
   messageComposer.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 }
 
 function cancelReply() {
   replyParentId.value = 0
+  replyTargetName.value = ''
 }
 
 function goToMessagePage(target) {
@@ -253,7 +305,7 @@ onMounted(() => {
 
         <div ref="messageComposer" class="message-composer">
           <p v-if="replyParentId" class="reply-tip">
-            正在回复留言 #{{ replyParentId }}
+            正在回复 {{ replyTargetName }}
             <button type="button" @click="cancelReply">取消回复</button>
           </p>
           <textarea
@@ -293,15 +345,16 @@ onMounted(() => {
 
         <div v-else class="message-list">
           <article
-            v-for="message in messages"
+            v-for="message in messageThreads"
             :key="message.id"
             class="message-item"
-            :class="{ reply: message.parentId !== 0 }"
+            :class="{ reply: message.depth > 0 }"
+            :style="{ marginLeft: `${message.depth * 26}px` }"
           >
             <div class="message-meta">
-              <strong>用户 {{ message.userId }}</strong>
+              <strong>{{ message.username || `用户 ${message.userId}` }}</strong>
               <span>{{ formatMessageTime(message.createTime) }}</span>
-              <span v-if="message.parentId !== 0">回复 #{{ message.parentId }}</span>
+              <span v-if="message.parentId !== 0">回复 {{ message.parentUsername || '未知用户' }}</span>
             </div>
             <p>{{ message.content }}</p>
             <button type="button" class="reply-button" @click="replyTo(message)">
