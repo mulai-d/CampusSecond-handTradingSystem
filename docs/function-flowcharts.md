@@ -59,7 +59,7 @@ MySQL
 - 查询当前用户收藏列表
 - 查询指定用户收藏列表
 
-当前系统固定当前用户为 `userId = 666`，因此“当前用户收藏”相关接口均使用该固定用户。
+当前用户通过 JWT 登录后在请求头携带 token，后端从 token 解析 userId 存入 UserContext，“当前用户收藏”相关接口均使用该真实用户。
 
 对应前端页面：
 
@@ -203,6 +203,9 @@ flowchart TD
 | GET | `/products` | 分页查询商品 |
 | GET | `/products/{id}` | 查询商品详情并增加浏览量 |
 | GET | `/products/{id}/views` | 查询商品浏览量 |
+| GET | `/products/distribution` | 商品分布统计（分类、价格区间） |
+| POST | `/products` | 发布商品（仅管理员） |
+| PUT | `/products/{id}` | 编辑商品（仅管理员） |
 
 ### 6.2 收藏接口
 
@@ -225,6 +228,28 @@ flowchart TD
 | GET | `/messages/product/{productId}` | 分页查询商品留言 |
 | DELETE | `/messages/{id}` | 删除留言 |
 
+### 6.4 认证接口
+
+| 方法 | 路径 | 功能 |
+| --- | --- | --- |
+| POST | `/auth/register` | 注册 |
+| POST | `/auth/login` | 登录，返回 JWT |
+
+### 6.5 分类接口
+
+| 方法 | 路径 | 功能 |
+| --- | --- | --- |
+| GET | `/categories` | 分类列表 |
+| POST | `/categories` | 新增分类（需登录） |
+| PUT | `/categories/{id}` | 修改分类（需登录） |
+| DELETE | `/categories/{id}` | 删除分类（需登录） |
+
+### 6.6 文件上传接口
+
+| 方法 | 路径 | 功能 |
+| --- | --- | --- |
+| POST | `/upload` | 图片上传（需登录） |
+
 ## 7. 缓存策略
 
 系统使用 Redis 缓存以下数据：
@@ -241,8 +266,8 @@ flowchart TD
 
 ## 8. 当前实现边界
 
-- 系统未实现用户登录和权限体系，收藏和留言中的当前用户固定为 `userId = 666`。
-- 商品只有查询能力，未提供发布、编辑、下架等接口。
-- 留言只提供一级回复，不在列表层做树形结构展开。
+- 已实现用户注册、登录（JWT）与角色权限（user/admin），收藏和留言中的当前用户从 token 解析。
+- 商品支持分类浏览、关键词搜索、发布、编辑（仅管理员）、图片上传与浏览量统计。
+- 留言支持一级留言与回复（parentId 建立层级），不在列表层做树形结构展开。
 - 收藏列表中的商品信息通过控制器逐个查询商品并组装为 `FavoriteItemVO`。
 

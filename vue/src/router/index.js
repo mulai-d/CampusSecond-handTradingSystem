@@ -3,6 +3,7 @@ import ProductList from '../views/ProductList.vue'
 import ProductDetail from '../views/ProductDetail.vue'
 import ProductEdit from '../views/ProductEdit.vue'
 import ProductPublish from '../views/ProductPublish.vue'
+import ProductDistribution from '../views/ProductDistribution.vue'
 import Favorites from '../views/Favorites.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
@@ -19,6 +20,11 @@ const router = createRouter({
       path: '/products/publish',
       name: 'product-publish',
       component: ProductPublish
+    },
+    {
+      path: '/distribution',
+      name: 'product-distribution',
+      component: ProductDistribution
     },
     {
       path: '/products/:id',
